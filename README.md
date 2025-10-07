@@ -1,3 +1,4 @@
+# In Development by Garrett
 <h1 align='center'>
   Discord Chores Manager <br/>
 </h1>
