@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 
 class ChoreScheduler:
@@ -9,7 +10,9 @@ class ChoreScheduler:
     # ---------- Basic File I/O ----------
     def load_data(self):
         if not self.file.exists():
-            raise FileNotFoundError(f"{self.file} not found.")
+            sample_path = self.file.with_name("chores.json.sample")
+            shutil.copy(sample_path, self.file)
+            print(f"Created {self.file} from {sample_path}.")
         with self.file.open("r", encoding="utf-8") as f:
             return json.load(f)
 
@@ -65,9 +68,8 @@ class ChoreScheduler:
         self.save_data()
 
 
-
-
-
+# Original code from fork
+# Possibly unnecessary but keeping for posterity
 '''
 from typing import List, Text, Tuple
 

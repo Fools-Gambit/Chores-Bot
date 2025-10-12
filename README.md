@@ -1,4 +1,5 @@
 # In Development by Garrett
+
 <h1 align='center'>
   Discord Chores Manager <br/>
 </h1>
@@ -10,8 +11,6 @@
     <img src='https://github.com/agupta231/ormond-chores-bot/workflows/Build/badge.svg?branch=main'>
   </a>
 </p>
-
-
 
 # Overview
 This is a little Discord bot to manage the chores between a group of people. 
@@ -33,8 +32,6 @@ swap        Swap on call position with chosen person
 today       Return the person who is on-call today
 ```
 
-
-
 # Before Running
 Before the bot can run, you **need** to supply it a `.env` file for all of the
 tokens and associated IDs. This can easily be done by making a copy of 
@@ -44,8 +41,6 @@ tokens and associated IDs. This can easily be done by making a copy of
 Observe that this is a mono-server bot, and the guild/channel/role IDs are
 the default IDs that you would like the bot to scrape to get the member lists.
 
-
-
 # Execution Directions
 Note that this repo can automatically be run by `docker-compose` via my 
 [bots](https://github.com/agupta231/bots) repo. To run just this service, you 
@@ -54,7 +49,6 @@ use the included Dockerfile to install all of the dependencies.
 
 Only the virtual environment and Docker instructions will follow. If you are
 interested in using my bots repo to run it, refer to that repo.
-
 
 ## Virtual Environment
 Firstly, ensure that you have both python 3 and the `python3.x-venv` packages 
@@ -69,7 +63,6 @@ terminal:
 3. Update your environment base deps: `pip install -U wheel pip`
 4. Install the project dependencies: `pip install -r requirements.txt`
 5. Run the bot: `python src/bot.py`
-
 
 ## Docker
 A simple Dockerfile is also included for your convenience. To run the service
