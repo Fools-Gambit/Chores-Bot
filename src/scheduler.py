@@ -1,3 +1,74 @@
+import json
+from pathlib import Path
+
+class ChoreScheduler:
+    def __init__(self, file_path="chores.json"):
+        self.file = Path(file_path)
+        self.data = self.load_data()
+
+    # ---------- Basic File I/O ----------
+    def load_data(self):
+        if not self.file.exists():
+            raise FileNotFoundError(f"{self.file} not found.")
+        with self.file.open("r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def save_data(self):
+        with self.file.open("w", encoding="utf-8") as f:
+            json.dump(self.data, f, indent=2)
+
+    # ---------- CRUD Operations ----------
+    def get_assignments(self):
+        return self.data["assignments"]
+
+    def get_user_chore(self, user):
+        return self.data["assignments"].get(user)
+
+    def mark_completed(self, user):
+        """Mark a user's chore as completed."""
+        if user not in self.data["users"]:
+            raise ValueError(f"User '{user}' not found.")
+        if user not in self.data["completed"]:
+            self.data["completed"].append(user)
+            self.save_data()
+            return True
+        return False
+
+    def reset_week(self):
+        """Rotate chores and reset completion."""
+        users = self.data["users"]
+        chores = list(self.data["chores"].keys())
+        assignments = self.data["assignments"]
+
+        # Rotate chores
+        current = [assignments[u] for u in users]
+        rotated = current[-1:] + current[:-1]  # move last to first
+
+        for u, c in zip(users, rotated):
+            assignments[u] = c
+
+        self.data["completed"] = []
+        self.data["week"] += 1
+        self.save_data()
+        
+    def add_user(self, user):
+        if user in self.data["users"]:
+            raise ValueError("User already exists.")
+        self.data["users"].append(user)
+        self.save_data()
+
+    def remove_user(self, user):
+        self.data["users"].remove(user)
+        self.data["assignments"].pop(user, None)
+        if user in self.data["completed"]:
+            self.data["completed"].remove(user)
+        self.save_data()
+
+
+
+
+
+'''
 from typing import List, Text, Tuple
 
 import calendar
@@ -90,3 +161,4 @@ class Scheduler:
       util.discord_name(self._users[-1]), self._users[-1].id))
     self._logger.info('{} (id: {}) is now on call'.format(
       util.discord_name(self.on_call), self.on_call.id))
+'''

@@ -39,13 +39,14 @@ logger.addHandler(console_handler)
 # =================================
 # Bot parameters
 # =================================
-COMMAND_PREFIX = '!'
+COMMAND_PREFIX = '/'
 
 NOTIFICATION_FREQUENCY = {'minutes': 30.0}
 RESET_TIME = datetime.time(4, 20, 0, 0)
 NOTIFICATION_START = datetime.time(21, 30, 0, 0)
 
 intents = discord.Intents.default()
+intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(COMMAND_PREFIX), 
                    intents=intents)
@@ -104,6 +105,87 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
   notify.start()
   return
 
+#Bundles
+#   Kitchen (a) - countertops, stove, sink, airfryer, microwave, fridge, oven
+#   Floors (b) - sweep, mop, vacuum
+#   Utility (c) - windows, window sills, doors, washer, dryer, cabinets
+#   Surfaces (d) - table, coffee table, bookshelves, entertainment center
+
+#Rotation, Saturdays only, Rotates Weekly
+#   Week 1 Garrett A, Estelle B, Jakob C, Kiera D
+#   Week 2 Garrett B, Estelle C, Jakob D, Kiera A
+#   Week 3 Garrett C, Estelle D, Jakob A, Kiera B
+#   Week 4 Garrett D, Estelle A, Jakob B, Kiera C
+#   repeat cycle
+
+#Tracker/Notifications
+#   Bot will notify each individual with thier respective "Bundle" Saturday 10am
+#   At 4pm a notifaction will go off to each individual who has not logged thier chores as "Complete"
+
+#Commands
+#   "Bundles" - Lists all bundles and what they're responsible for
+#     create bundle, update bundle, read bundle, delete bundle   
+#   "Rotation" - Will post the current week and the full rotation
+#     update rotation, read rotation
+#   "Complete" - Will silence notifications until next week
+
+# Create/update/delete bundles (I recommend naming them better than bundle 1 (kitchen, floors, etc) ) Define better elsewhere
+# Get chore doers from a specific role OR from a command? Which one?
+# Warn/adapt if the number of bundles doesn't match with the number of chore doers
+
+'''
+@bot.command(name='create_bundle', help='Adds specified bundle and adds it to the rotation')
+async def FUNCTION_NAME(ctx):
+  send user empty prompt export as "new_bundle"
+  adds bundle "new_bundle", run set rotation function
+  await ctx.message.channel.send('Bundle "y" has been added to rotation and bundles')
+  return
+
+@bot.command(name='update_bundle', help='Enter new responsibilities for selected bundle')
+async def FUNCTION_NAME(ctx):
+  send user dropdown of "bundles"
+    export decision as "chosen_bundle"
+  send user empty prompt
+    export text as string"new_responsibilities"
+    replace string"responsibilities" of "chosen_bundle" with string"new_responsibilities"
+  await ctx.message.channel.send('Bundle "z" is now responsible for "responsibilities"')
+  return
+
+@bot.command(name='read_bundles', help='Lists all bundles and what they're responsible for')
+async def show_bundle(ctx):
+  collect all bundle and
+#   format into varible named "output"
+  await ctx.message.channel.send(print "output")
+  return
+
+@bot.command(name='delete_bundle', help='Delete specified bundle and removes it from rotation')
+async def FUNCTION_NAME(ctx):
+  send user ('what bundle would you like to delete')
+  send user dropdown of "bundles"
+    delete chosen bundle
+  run set rotation function
+  await ctx.message.channel.send('Bundle "x" has been deleted and removed from rotation')
+  return
+
+@bot.command(name='show_rotation', help='Displays the current rotation of Who does What')
+async def FUNCTION_NAME(ctx):
+  format "rotations" 
+  await ctx.message.channel.send(print "rotations")
+  return
+
+@bot.command(name='set_rotation', help='Select what weeks rotation you'd like it set to')
+async def rotation_weeks(ctx):
+  send user dropdown of "weeks"
+  run set rotation function
+  await ctx.message.channel.send(MESSAGE_TEXT)
+  return
+
+@bot.command(name='complete', help='Marks the users assigned tasks as completed')
+async def complete(ctx):
+  set user task as complete
+  await ctx.message.channel.send(you did good nigga)
+  return
+'''
 
 @bot.command(name='today', help='Return the person who is on-call today')
 async def on_call_today(ctx):
