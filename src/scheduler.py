@@ -9,7 +9,7 @@ class ChoreScheduler:
 
     # ---------- Basic File I/O ----------
     def load_data(self):
-        if not self.file.exists():
+        if not self.file.exists():                
             sample_path = self.file.with_name("chores.json.sample")
             shutil.copy(sample_path, self.file)
             print(f"Created {self.file} from {sample_path}.")
@@ -26,6 +26,14 @@ class ChoreScheduler:
 
     def get_user_chore(self, user):
         return self.data["assignments"].get(user)
+
+    def add_chore(self, chore):
+        # Check if the chore exists
+        if chore[0] in self.data["chores"].keys():
+            return
+        # Append the chore to the data
+        self.data["chores"][chore[0]] = chore[1:]
+        self.save_data()
 
     def mark_completed(self, user):
         """Mark a user's chore as completed."""
@@ -56,7 +64,8 @@ class ChoreScheduler:
         
     def add_user(self, user):
         if user in self.data["users"]:
-            raise ValueError("User already exists.")
+            #raise ValueError("User already exists.")
+            return
         self.data["users"].append(user)
         self.save_data()
 

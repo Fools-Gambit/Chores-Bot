@@ -10,7 +10,7 @@ import discord
 import logging
 import os
 
-import scheduler
+from scheduler import ChoreScheduler
 import util
 
 
@@ -51,7 +51,7 @@ intents.members = True
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(COMMAND_PREFIX), 
                    intents=intents)
 
-sch: scheduler.Scheduler = None
+sch: ChoreScheduler = None
 _default_channel = None
 
 
@@ -73,23 +73,12 @@ async def on_ready():
       users.append(member)
 
   global sch
-  sch = scheduler.Scheduler(users)
+  sch = ChoreScheduler()
+
+  for user in users:
+    sch.add_user(user.id)
 
   server_str = """
-
-            ██████╗██████╗███╗   ███╗██████╗███╗   ████████╗              
-            ██╔═══████╔══██████╗ ██████╔═══██████╗  ████╔══██╗             
-            ██║   ████████╔██╔████╔████║   ████╔██╗ ████║  ██║             
-            ██║   ████╔══████║╚██╔╝████║   ████║╚██╗████║  ██║             
-            ╚██████╔██║  ████║ ╚═╝ ██╚██████╔██║ ╚██████████╔╝             
-            ╚═════╝╚═╝  ╚═╚═╝     ╚═╝╚═════╝╚═╝  ╚═══╚═════╝              
-   
-    ████████╗  ██╗██████╗██████╗███████╗        ███╗   ███╗██████╗██████╗ 
-    ██╔════██║  ████╔═══████╔══████╔════╝        ████╗ ██████╔════╝██╔══██╗
-    ██║    █████████║   ████████╔█████╗          ██╔████╔████║  █████████╔╝
-    ██║    ██╔══████║   ████╔══████╔══╝          ██║╚██╔╝████║   ████╔══██╗
-    ╚████████║  ██╚██████╔██║  █████████╗        ██║ ╚═╝ ██╚██████╔██║  ██║
-    ╚═════╚═╝  ╚═╝╚═════╝╚═╝  ╚═╚══════╝        ╚═╝     ╚═╝╚═════╝╚═╝  ╚═╝
 
 Registered Users:
 {}
@@ -133,14 +122,16 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 # Get chore doers from a specific role OR from a command? Which one?
 # Warn/adapt if the number of bundles doesn't match with the number of chore doers
 
-'''
+
 @bot.command(name='create_bundle', help='Adds specified bundle and adds it to the rotation')
-async def FUNCTION_NAME(ctx):
-  send user empty prompt export as "new_bundle"
-  adds bundle "new_bundle", run set rotation function
-  await ctx.message.channel.send('Bundle "y" has been added to rotation and bundles')
+async def create_bundle(ctx, *bundle):
+  #send user empty prompt export as "new_bundle"
+  #adds bundle "new_bundle", run set rotation function
+  sch.add_chore(bundle)
+  await ctx.message.channel.send(f'Bundle {bundle[0]} has been added to rotation and bundles')
   return
 
+'''  
 @bot.command(name='update_bundle', help='Enter new responsibilities for selected bundle')
 async def FUNCTION_NAME(ctx):
   send user dropdown of "bundles"
