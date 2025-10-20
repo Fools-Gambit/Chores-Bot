@@ -30,6 +30,7 @@ class ChoreScheduler:
     def add_chore(self, chore):
         # Check if the chore exists
         if chore[0] in self.data["chores"].keys():
+            #raise ValueError("Chore already exists.")
             return
         # Append the chore to the data
         self.data["chores"][chore[0]] = chore[1:]
@@ -76,6 +77,11 @@ class ChoreScheduler:
             self.data["completed"].remove(user)
         self.save_data()
 
+    #def set_rotation(self):
+    # Raise an error if the chore count != users count
+    # Take the weeks value, iterate through all the users
+    # For each user, give them a chore offset and modulated by the weeks value
+    # Apply that rotation
 
 # Original code from fork
 # Possibly unnecessary but keeping for posterity

@@ -125,15 +125,15 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 
 @bot.command(name='create_bundle', help='Adds specified bundle and adds it to the rotation')
 async def create_bundle(ctx, *bundle):
-  #send user empty prompt export as "new_bundle"
-  #adds bundle "new_bundle", run set rotation function
+  #TODO: Possibly send user empty prompt and add_chore()
   sch.add_chore(bundle)
+  # Run the set_rotation function
   await ctx.message.channel.send(f'Bundle {bundle[0]} has been added to rotation and bundles')
   return
 
-'''  
+''' Not an important command right now
 @bot.command(name='update_bundle', help='Enter new responsibilities for selected bundle')
-async def FUNCTION_NAME(ctx):
+async def update_bundle(ctx):
   send user dropdown of "bundles"
     export decision as "chosen_bundle"
   send user empty prompt
@@ -141,7 +141,9 @@ async def FUNCTION_NAME(ctx):
     replace string"responsibilities" of "chosen_bundle" with string"new_responsibilities"
   await ctx.message.channel.send('Bundle "z" is now responsible for "responsibilities"')
   return
+'''  
 
+'''
 @bot.command(name='read_bundles', help='Lists all bundles and what they're responsible for')
 async def show_bundle(ctx):
   collect all bundle and
