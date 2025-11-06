@@ -3,6 +3,7 @@
 # =================================
 from discord.ext import commands
 from discord.ext import tasks
+from discord import app_commands
 
 import asyncio
 import datetime
@@ -39,7 +40,6 @@ logger.addHandler(console_handler)
 # =================================
 # Bot parameters
 # =================================
-COMMAND_PREFIX = '/'
 
 NOTIFICATION_FREQUENCY = {'minutes': 30.0}
 RESET_TIME = datetime.time(4, 20, 0, 0)
@@ -48,8 +48,7 @@ NOTIFICATION_START = datetime.time(21, 30, 0, 0)
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(COMMAND_PREFIX), 
-                   intents=intents)
+bot = commands.Bot(intents=intents, command_prefix='/')
 
 sch: ChoreScheduler = None
 _default_channel = None
@@ -91,8 +90,12 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 
   logger.info(server_str)
   print(server_str, flush=True)
-  notify.start()
-  return
+  guild = discord.Object(id=int(os.getenv('GUILD')))
+  await bot.tree.sync(guild=guild)
+  #synced = await bot.tree.fetch_commands(guild=guild)
+  #print(f"Ready! Synced {len(synced)} commands to YOUR server")
+  #print("Go type / in any channel → create_bundle is there!")
+
 
 #Bundles
 #   Kitchen (a) - countertops, stove, sink, airfryer, microwave, fridge, oven
@@ -123,13 +126,24 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 # Warn/adapt if the number of bundles doesn't match with the number of chore doers
 
 
-@bot.command(name='create_bundle', help='Adds specified bundle and adds it to the rotation')
-async def create_bundle(ctx, *bundle):
+@bot.hybrid_command(name='create_bundle', description='Adds specified bundle and adds it to the rotation')
+@app_commands.describe(bundle='the chore bundle')
+async def create_bundle(ctx, bundle: str):
   #TODO: Possibly send user empty prompt and add_chore()
-  sch.add_chore(bundle)
+  parsed = bundle.split()
+  sch.add_chore(parsed)
   # Run the set_rotation function
-  await ctx.message.channel.send(f'Bundle {bundle[0]} has been added to rotation and bundles')
-  return
+  #await ctx.message.channel.send(f'Bundle {parsed[0]} has been added to rotation and bundles')
+  await ctx.send(f'Bundle {parsed[0]} has been added to rotation and bundles')
+
+'''@bot.hybrid_command(name='delete_bundle', description='Delete specified bundle and removes it from rotation')
+@app_commands.describe()
+async def FUNCTION_NAME(ctx):
+  send user ('what bundle would you like to delete')
+  send user dropdown of "bundles"
+    delete chosen bundle
+  run set rotation function
+  await ctx.message.channel.send('Bundle "x" has been deleted and removed from rotation')'''
 
 ''' Not an important command right now
 @bot.command(name='update_bundle', help='Enter new responsibilities for selected bundle')
@@ -151,14 +165,7 @@ async def show_bundle(ctx):
   await ctx.message.channel.send(print "output")
   return
 
-@bot.command(name='delete_bundle', help='Delete specified bundle and removes it from rotation')
-async def FUNCTION_NAME(ctx):
-  send user ('what bundle would you like to delete')
-  send user dropdown of "bundles"
-    delete chosen bundle
-  run set rotation function
-  await ctx.message.channel.send('Bundle "x" has been deleted and removed from rotation')
-  return
+
 
 @bot.command(name='show_rotation', help='Displays the current rotation of Who does What')
 async def FUNCTION_NAME(ctx):
@@ -180,81 +187,37 @@ async def complete(ctx):
   return
 '''
 
-@bot.command(name='today', help='Return the person who is on-call today')
-async def on_call_today(ctx):
-  await ctx.message.channel.send(
-    '<@{}> is responsible for the kitchen tonight!'.format(sch.on_call.id))
-  return
 
-  
-@bot.command(name='schedule', help='List the schedule for the seven days')
-async def schedule(ctx):
-  await ctx.message.channel.send('```{}```'.format(sch.generate_schedule()))
-  return
+# @tasks.loop(**NOTIFICATION_FREQUENCY)
+# async def notify():
+#   curr_time = datetime.datetime.now().time()
 
+#   if not sch.signed_off and (curr_time >= NOTIFICATION_START or \
+#      (curr_time <= RESET_TIME)):
+#     await _default_channel.send(
+#       'Reminder that <@{}> is responsible for the kitchen tonight!'.format(
+#         sch.on_call.id))
+#   elif sch.signed_off and curr_time >= RESET_TIME:
+#     sch.signed_off = False
+#   else:
+#     logger.info('Notification suppressed.')
 
-@bot.command(name='swap', help='Swap on call position with chosen person')
-async def swap(ctx, member: discord.Member):
-  try:
-    sch.swap(ctx.message.author, member)
-  
-    await ctx.message.channel.send('Users have been switched! The new schedule '
-                                  'should be as follows:')
-    await ctx.message.channel.send('```{}```'.format(sch.generate_schedule()))
-  except ValueError:
-    await ctx.message.channel.send('You can\'t swap with yourself!')
-  except:
-    await ctx.message.channel.send('There was an error when trying to swap.')
-
-  return
-
-  
-@bot.command(name='signoff', help='Sign off the on-call member for today')
-async def signoff(ctx):
-  oncall = sch.on_call
-
-  if ctx.message.author == oncall:
-    await ctx.message.channel.send('You can\'t sign off yourself!')
-    logger.warning('{} tried to sign off themselves'.format(ctx.message.author))
-    return
-
-  sch.signoff()
-  await ctx.message.channel.send(
-    '<@{}> has been signed off for tonight! <@{}> is responsible for '
-    'the kitchen next.'.format(oncall.id, sch.on_call.id))
-  return
+#   logger.info('{} has been notified.'.format(util.discord_name(sch.on_call)))
+#   return
 
 
-@tasks.loop(**NOTIFICATION_FREQUENCY)
-async def notify():
-  curr_time = datetime.datetime.now().time()
+# @notify.before_loop
+# async def notifications_init():
+#   """Sleep so that the notifications start on the hour."""
+#   next_hour = datetime.datetime.now()
+#   next_hour = next_hour.replace(
+#     minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
 
-  if not sch.signed_off and (curr_time >= NOTIFICATION_START or \
-     (curr_time <= RESET_TIME)):
-    await _default_channel.send(
-      'Reminder that <@{}> is responsible for the kitchen tonight!'.format(
-        sch.on_call.id))
-  elif sch.signed_off and curr_time >= RESET_TIME:
-    sch.signed_off = False
-  else:
-    logger.info('Notification suppressed.')
-
-  logger.info('{} has been notified.'.format(util.discord_name(sch.on_call)))
-  return
-
-
-@notify.before_loop
-async def notifications_init():
-  """Sleep so that the notifications start on the hour."""
-  next_hour = datetime.datetime.now()
-  next_hour = next_hour.replace(
-    minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
-
-  delta = next_hour - datetime.datetime.now()
-  logger.info('Sleeping {} seconds before activating notifications'.format(
-    delta.total_seconds()))
-  await asyncio.sleep(delta.total_seconds())
-  return
+#   delta = next_hour - datetime.datetime.now()
+#   logger.info('Sleeping {} seconds before activating notifications'.format(
+#     delta.total_seconds()))
+#   await asyncio.sleep(delta.total_seconds())
+#   return
 
   
 if __name__ == '__main__':
