@@ -94,7 +94,7 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
   guild = discord.Object(id=int(os.getenv('GUILD')))
   bot.tree.clear_commands(guild=guild)
   bot.tree.copy_global_to(guild=guild)
-  synced = await bot.tree.sync(guild=guild)
+  synced = await bot.tree.sync(guild=guild) # bot.tree.sync() causes duplicates and headaches
   print(f'{len(synced)} slash commands synced!')
 
 #Bundles
@@ -111,7 +111,7 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 #   repeat cycle
 
 #Tracker/Notifications
-#   Bot will notify each individual with thier respective "Bundle" Saturday 10am
+#   Bot will notify each individual with their respective "Bundle" Saturday 10am
 #   At 4pm a notifaction will go off to each individual who has not logged thier chores as "Complete"
 
 #Commands
@@ -125,14 +125,6 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 # Get chore doers from a specific role OR from a command? Which one?
 # Warn/adapt if the number of bundles doesn't match with the number of chore doers
 
-# Force sync for testing
-@bot.command()
-async def sync(ctx):
-    guild = discord.Object(id=ctx.guild.id)
-    ctx.bot.tree.copy_global_to(guild=guild)
-    synced = await ctx.bot.tree.sync(guild=guild)
-    await ctx.send(f"{len(synced)} slash commands synced!")
-
 ### Bundle CRUD ###
 
 @bot.hybrid_command(name='create_bundle', description='Adds specified bundle and adds it to the rotation')
@@ -144,21 +136,16 @@ async def create_bundle(ctx: commands.Context, bundle: str):
   await ctx.send(f'Bundle {parsed[0]} has been added to rotation and bundles')
 
 async def bundle_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-    print("I'm completing!")
-    options = sch.data.chores.keys()
+    options = sch.data["chores"].keys()
     return [app_commands.Choice(name=option, value=option) for option in options if option.lower().startswith(current.lower())][:25]
 
 @bot.hybrid_command(name='remove_bundle', description='Remove specified bundle from the list and rotation')
 @app_commands.describe(bundle='the bundle to remove')
 @app_commands.autocomplete(bundle=bundle_autocomplete)
 async def remove_bundle(ctx: commands.Context, bundle: str):
+  sch.remove_chore(bundle)
+  # TODO: adjust the rotation accordingly
   await ctx.send(f'Bundle {bundle} has been removed from the rotation!')
-#   send user ('what bundle would you like to delete')
-#   send user dropdown of "bundles"
-#     delete chosen bundle
-#   run set rotation function
-#   await ctx.send('Bundle "x" has been deleted and removed from rotation')
-
 
 @bot.hybrid_command(name='update_bundle', description='Update existing chore bundle with new responsibilities')
 async def update_bundle(ctx: commands.Context):
