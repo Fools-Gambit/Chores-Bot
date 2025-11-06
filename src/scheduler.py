@@ -30,7 +30,7 @@ class ChoreScheduler:
     def add_chore(self, chore):
         # Check if the chore exists
         if chore[0] in self.data["chores"].keys():
-            raise ValueError("Chore already exists.")
+            raise ValueError("Chore already exists. Cannot add.")
         # Append the chore to the data
         self.data["chores"][chore[0]] = chore[1:]
         self.save_data()
@@ -38,9 +38,15 @@ class ChoreScheduler:
     def remove_chore(self, chore):
         # Check if the chore exists
         if chore not in self.data["chores"].keys():
-            raise ValueError(f'{chore} not in data')
+            raise ValueError(f"Chore not in data. Cannot remove.")
         # Remove chore from the data
         self.data["chores"].pop(chore)
+        self.save_data()
+    
+    def update_chore(self, chore):
+        if chore[0] in self.data["chores"].keys():
+            raise ValueError("Chore not in data. Cannot update.")
+        self.data["chores"][chore[0]] = chore[1:]
         self.save_data()
 
     def mark_completed(self, user):

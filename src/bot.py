@@ -132,7 +132,7 @@ Now Serving.\n""".format('\n'.join(u.nick or u.name for u in users),
 async def create_bundle(ctx: commands.Context, bundle: str):
   parsed = bundle.split()
   sch.add_chore(parsed)
-  # Run the set_rotation function
+  # TODO: adjust the rotation accordingly
   await ctx.send(f'Bundle {parsed[0]} has been added to rotation and bundles')
 
 async def bundle_autocomplete(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -148,42 +148,50 @@ async def remove_bundle(ctx: commands.Context, bundle: str):
   await ctx.send(f'Bundle {bundle} has been removed from the rotation!')
 
 @bot.hybrid_command(name='update_bundle', description='Update existing chore bundle with new responsibilities')
+#@app_commands.describe(bundle='the bundle to update')
+#@app_commands.autocomplete(bundle=bundle_autocomplete)
 async def update_bundle(ctx: commands.Context):
-  pass
-#   send user dropdown of "bundles"
-#     export decision as "chosen_bundle"
-#   send user empty prompt
-#     export text as string"new_responsibilities"
-#     replace string"responsibilities" of "chosen_bundle" with string"new_responsibilities"
-#   await ctx.send('Bundle "z" is now responsible for "responsibilities"')
+  # sch.update_chore(bundle, responsibilities)
+  # Rotation should not need adjustment after this command
+  # await ctx.send('Bundle "z" is now responsible for "responsibilities"')
+  await ctx.send("Under development!")
 
 @bot.hybrid_command(name='show_bundles', description='List all bundles and their chores')
 async def show_bundles(ctx: commands.Context):
-  pass
-#   collect all bundle and
-# #   format into varible named "output"
-#   await ctx.send(print "output")
+  bundles = sch.data["chores"]
+  # TODO: make bundles pretty
+  await ctx.send(bundles)
 
 ###################
 
+## Rotation CRUD ##
 '''
 @bot.hybrid_command(name='show_rotation', help='Displays the current rotation of Who does What')
 async def show_rotation(ctx: commands.Context):
   format "rotations" 
   await ctx.send(print "rotations")
 
-@bot.hybrid_command(name='set_rotation', help='Select what weeks rotation you'd like it set to')
-async def set_rotation(ctx: commands.Context):
-  send user dropdown of "weeks"
-  run set rotation function
+@bot.hybrid_command(name='advance_rotation', help='Moves the chores rotation forward one week')
+async def advance_rotation(ctx: commands.Context):
+  Run the stop/start rotation function
+  await ctx.send(MESSAGE_TEXT)
+
+@bot.hybrid_command(name='toggle_rotation', help='Enables or disables the chore rotation schedule')
+async def toggle_rotation(ctx: commands.Context):
+  Run the stop/start rotation function
   await ctx.send(MESSAGE_TEXT)
 
 @bot.hybrid_command(name='complete', help='Marks the users assigned tasks as completed')
 async def complete(ctx: commands.Context):
+  Add the user's id to the completed list
   set user task as complete
   await ctx.send(you did good nigga)
 '''
+###################
 
+## Reminder Loop ##
+
+# def check/set/change/update rotation
 
 # @tasks.loop(**NOTIFICATION_FREQUENCY)
 # async def notify():
@@ -201,7 +209,6 @@ async def complete(ctx: commands.Context):
 
 #   logger.info('{} has been notified.'.format(util.discord_name(sch.on_call)))
 
-
 # @notify.before_loop
 # async def notifications_init():
 #   """Sleep so that the notifications start on the hour."""
@@ -213,7 +220,9 @@ async def complete(ctx: commands.Context):
 #   logger.info('Sleeping {} seconds before activating notifications'.format(
 #     delta.total_seconds()))
 #   await asyncio.sleep(delta.total_seconds())
-  
+
+###################
+
 if __name__ == '__main__':
   util.load_env()
   bot.run(os.getenv('TOKEN'))
