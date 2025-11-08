@@ -165,12 +165,17 @@ async def show_bundles(ctx: commands.Context):
 ###################
 
 ## Rotation CRUD ##
-'''
-@bot.hybrid_command(name='show_rotation', help='Displays the current rotation of Who does What')
-async def show_rotation(ctx: commands.Context):
-  format "rotations" 
-  await ctx.send(print "rotations")
 
+@bot.hybrid_command(name='show_rotation', help='Displays the current rotation of who does what')
+async def show_rotation(ctx: commands.Context):
+  users = [await ctx.bot.fetch_user(uid) for uid in sch.data["users"]]
+  output = "I'm tracking these users:\n"
+  for user in users:
+    name = user.global_name if user.global_name else user.name
+    output += name + "\n"
+  await ctx.send(output)
+
+'''
 @bot.hybrid_command(name='advance_rotation', help='Moves the chores rotation forward one week')
 async def advance_rotation(ctx: commands.Context):
   Run the stop/start rotation function
