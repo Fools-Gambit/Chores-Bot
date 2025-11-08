@@ -175,23 +175,28 @@ async def show_rotation(ctx: commands.Context):
     output += name + "\n"
   await ctx.send(output)
 
-'''
-@bot.hybrid_command(name='advance_rotation', help='Moves the chores rotation forward one week')
-async def advance_rotation(ctx: commands.Context):
-  Run the stop/start rotation function
-  await ctx.send(MESSAGE_TEXT)
-
 @bot.hybrid_command(name='toggle_rotation', help='Enables or disables the chore rotation schedule')
 async def toggle_rotation(ctx: commands.Context):
-  Run the stop/start rotation function
-  await ctx.send(MESSAGE_TEXT)
+  output = ""
+  if len(sch.data["chores"]) < len(sch.data["users"]):
+    output = "Rotation imbalance! Not enough chores for the number of users!"
+  elif len(sch.data["chores"]) > len(sch.data["users"]):
+    output = "Rotation imbalance! Too many chores for the number of users!"
+  else:
+    output = "Chores rotation is now {sch.data['active']}"
+  await ctx.send(output)
+
+@bot.hybrid_command(name='advance_rotation', help='Moves the chores rotation forward one week')
+async def advance_rotation(ctx: commands.Context):
+  output = f'We are now in week {sch.data["week"]+1}'
+  await ctx.send(output)
 
 @bot.hybrid_command(name='complete', help='Marks the users assigned tasks as completed')
 async def complete(ctx: commands.Context):
-  Add the user's id to the completed list
-  set user task as complete
-  await ctx.send(you did good nigga)
-'''
+  member = ctx.message.author.global_name if ctx.message.author.global_name else ctx.message.author.name
+  output = f"Adding {member}'s id {ctx.message.author.id} to the completed list!"
+  await ctx.send(output)
+
 ###################
 
 ## Reminder Loop ##
