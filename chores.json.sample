@@ -3,5 +3,6 @@
   "users": [],
   "assignments": {},
   "completed_this_week": [],
-  "week": 0
+  "week": 0,
+  "active": false
 }
